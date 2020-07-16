@@ -1,0 +1,27 @@
+{
+    "name": "emerick42/kairoi-php",
+    "description": "The official PHP client for Kairoi, a Dynamic, Accurate and Scalable Time-based Job Scheduler.",
+    "type": "library",
+    "readme": "README.md",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "emerick42",
+            "email": "emerick42@pm.me",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4.6",
+        "mathiasverraes/parsica": "^0.4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.2.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kairoi\\": "src/",
+            "Kairoi\\Test\\": "tests/"
+        }
+    }
+}
