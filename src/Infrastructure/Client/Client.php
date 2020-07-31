@@ -103,6 +103,14 @@ class Client implements ClientInterface
 
         $buffer = '';
         while (true) {
+            // Check if the socket was closed.
+            if (feof($this->socket)) {
+                $this->shutdown();
+
+                // @TODO: Construct a more descriptive error.
+                return new Result(null);
+            }
+
             $data = fread($this->socket, 1024);
             if ($data === false) {
                 $this->shutdown();
