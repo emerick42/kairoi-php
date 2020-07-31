@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap = "vendor/autoload.php"
+         colors = "true"
+         convertDeprecationsToExceptions = "true"
+         convertErrorsToExceptions = "true"
+         convertNoticesToExceptions = "true"
+         convertWarningsToExceptions = "true"
+         failOnRisky = "true"
+         failOnWarning = "true"
+         beStrictAboutChangesToGlobalState = "true"
+         beStrictAboutOutputDuringTests = "true"
+>
+    <testsuites>
+        <testsuite name="Kairoi PHP Unit Tests">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/</directory>
+        </whitelist>
+    </filter>
+</phpunit>
