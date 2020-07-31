@@ -99,7 +99,23 @@ class Client implements ClientInterface
         }
 
         $message = $this->encoder->encode($request);
-        fwrite($this->socket, $message);
+        // Make sure to completely send the message.
+        $left = $message;
+        while (true) {
+            $result = fwrite($this->socket, $left);
+            if ($result === false) {
+                $this->shutdown();
+
+                // @TODO: Construct a more descriptive error.
+                return new Result(null);
+            }
+            if ($result === strlen($left)) {
+                break;
+            }
+            if ($result <= strlen($left)) {
+                $left = substr($left, $result);
+            }
+        }
 
         $buffer = '';
         while (true) {
