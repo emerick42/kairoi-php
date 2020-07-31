@@ -1,0 +1,17 @@
+name: Continous Integration
+on: [pull_request]
+
+jobs:
+    tests:
+        name: Tests
+        runs-on: ubuntu-18.04
+        steps:
+            -
+                name: Check out repository
+                uses: actions/checkout@v2
+            -
+                name: Install Composer dependencies
+                run: composer install --no-progress
+            -
+                name: Run PHPUnit tests
+                run: ./vendor/bin/phpunit
