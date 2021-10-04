@@ -56,21 +56,27 @@ class ParsicaDecoder implements DecoderInterface
         );
         $arguments = Parsica\some($argument);
         $content = Parsica\collect($argument, $arguments);
-        $parser = Parsica\keepFirst(
+        $response = Parsica\keepFirst(
             $content,
             $endline
         );
+        $parser = Parsica\some($response);
 
         $stream = new Parsica\StringStream($input);
         $result = $parser->run($stream);
 
         if ($result->isSuccess()) {
-            if ($result->remainder()->isEOF()) {
-                [$resultIdentifier, $resultArguments] = $result->output();
-                return new Result(Result::SUCCESS, new Response($resultIdentifier, $resultArguments));
+            $inputLeft = null;
+            if (!$result->remainder()->isEOF()) {
+                $inputLeft = (string)$result->remainder();
             }
 
-            return new Result(Result::FAILURE);
+            $responses = [];
+            foreach ($result->output() as [$identifier, $arguments]) {
+                $responses[] = new Response($identifier, $arguments);
+            }
+
+            return new Result(Result::SUCCESS, $inputLeft, $responses);
         }
 
         if ($result->got()->isEOF()) {

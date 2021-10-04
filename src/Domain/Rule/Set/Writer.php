@@ -54,7 +54,7 @@ class Writer
         // Construct the request and use the client to send it, then retrieve
         // the response.
         $request = $this->driver->getRequest($rule);
-        $clientResult = $this->client->send($request);
+        [$clientResult] = $this->client->send([$request]);
         $result = $this->driver->getResult($clientResult);
 
         return $result;

@@ -5,9 +5,9 @@ declare(strict_types = 1);
 namespace Kairoi\Test\Domain\Rule\Set;
 
 use Kairoi\Domain\Client\ClientInterface;
+use Kairoi\Domain\Client\Decoding\Response;
 use Kairoi\Domain\Client\Result as ClientResult;
 use Kairoi\Domain\Protocol\Request;
-use Kairoi\Domain\Protocol\Response;
 use Kairoi\Domain\Rule\Set\Driver\DriverInterface;
 use Kairoi\Domain\Rule\Set\Result;
 use Kairoi\Domain\Rule\Set\Rule;
@@ -25,8 +25,8 @@ class WriterTest extends TestCase
         $client
             ->expects($this->once())
             ->method('send')
-            ->with($this->equalTo($request))
-            ->willReturn($clientResult)
+            ->with($this->equalTo([$request]))
+            ->willReturn([$clientResult])
         ;
         $driver = $this->createMock(DriverInterface::class);
         $driver
@@ -51,7 +51,7 @@ class WriterTest extends TestCase
     {
         $rule = new Rule('identifier', 'pattern', 'runner');
         $request = new Request(['RULE', 'SET', 'identifier', 'pattern', 'runner']);
-        $clientResult = new ClientResult(new Response(['OK']));
+        $clientResult = new ClientResult(new Response('0', ['OK']));
         $result = new Result(Result::SUCCESS, $clientResult);
 
         return [

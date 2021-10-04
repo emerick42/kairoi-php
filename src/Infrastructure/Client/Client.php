@@ -86,23 +86,42 @@ class Client implements ClientInterface
     /**
      * {@inheritDoc}
      */
-    public function send(Request $request): Result
+    public function send(array $requests): array
     {
+        if (count($requests) <= 0) {
+            return [];
+        }
+
         // Initialize the connection if needed.
         if ($this->socket === null) {
             $socket = stream_socket_client($this->url, $errno, $errstr, 30);
             if (!$socket) {
                 // @TODO: Construct a more descriptive error.
-                return new Result(null);
+                $results = [];
+                foreach ($requests as $index => $request) {
+                    $results[$index] = new Result(null);
+                }
+
+                return $results;
             }
 
             $this->socket = $socket;
         }
 
-        // @TODO: Generate an identifier unique accross all active requests.
-        $identifier = '0';
-        $encodingRequest = new EncodingRequest($identifier, $request->getArguments());
-        $message = $this->encoder->encode($encodingRequest);
+        $identifierGenerator = 0;
+        $message = '';
+        $activeRequests = [];
+        foreach ($requests as $index => $request) {
+            $identifier = (string)($identifierGenerator++);
+            $activeRequests[$identifier] = [
+                'index' => $index,
+                'request' => $request,
+                'result' => null,
+            ];
+            $encodingRequest = new EncodingRequest($identifier, $request->getArguments());
+            $message .= $this->encoder->encode($encodingRequest);
+        }
+
         // Make sure to completely send the message.
         $left = $message;
         while (true) {
@@ -111,7 +130,12 @@ class Client implements ClientInterface
                 $this->shutdown();
 
                 // @TODO: Construct a more descriptive error.
-                return new Result(null);
+                $results = [];
+                foreach ($requests as $index => $request) {
+                    $results[$index] = new Result(null);
+                }
+
+                return $results;
             }
             if ($result === strlen($left)) {
                 break;
@@ -121,6 +145,7 @@ class Client implements ClientInterface
             }
         }
 
+        $completed = 0;
         $buffer = '';
         while (true) {
             // Check if the socket was closed.
@@ -128,7 +153,7 @@ class Client implements ClientInterface
                 $this->shutdown();
 
                 // @TODO: Construct a more descriptive error.
-                return new Result(null);
+                break;
             }
 
             $data = fread($this->socket, 1024);
@@ -136,23 +161,51 @@ class Client implements ClientInterface
                 $this->shutdown();
 
                 // @TODO: Construct a more descriptive error.
-                return new Result(null);
+                break;
             }
 
             $buffer .= $data;
             $result = $this->decoder->decode($buffer);
 
-            if ($result->isIncomplete()) {
-                continue;
-            }
             if ($result->isFailure()) {
                 $this->shutdown();
 
                 // @TODO: Construct a more descriptive error.
-                return new Result(null);
+                break;
             }
 
-            return new Result($result->getResponse());
+            if ($result->isIncomplete()) {
+                continue;
+            }
+
+            $buffer = '';
+            $inputLeft = $result->getInputLeft();
+            if ($inputLeft !== null) {
+                $buffer = $inputLeft;
+            }
+
+            foreach ($result->getResponses() as $response) {
+                $identifier = $response->getIdentifier();
+                if (array_key_exists($identifier, $activeRequests)) {
+                    $activeRequests[$identifier]['result'] = new Result($response);
+                    $completed++;
+                }
+            }
+
+            if ($completed >= $identifierGenerator) {
+                break;
+            }
         }
+
+        $results = [];
+        foreach ($activeRequests as ['index' => $index, 'request' => $request, 'result' => $result]) {
+            if ($result === null) {
+                $result = new Result(null);
+            }
+
+            $results[$index] = $result;
+        }
+
+        return $results;
     }
 }

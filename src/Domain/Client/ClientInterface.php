@@ -12,11 +12,12 @@ use Kairoi\Domain\Protocol\Request;
 interface ClientInterface
 {
     /**
-     * Send the given request to the Kairoi server, returning its response.
+     * Send the given requests to the Kairoi server, returning their responses.
+     * The resulting array is indexed like the request array.
      *
-     * @param Request $request
+     * @param Request[] $requests
      *
-     * @return Result
+     * @return Result[]
      */
-    public function send(Request $request): Result;
+    public function send(array $requests): array;
 }
