@@ -4,8 +4,6 @@ declare(strict_types = 1);
 
 namespace Kairoi\Domain\Client\Decoding;
 
-use Kairoi\Domain\Protocol\Response;
-
 /**
  * A result of a decoding operation, containing a protocol response on success,
  * or the error description on failure.

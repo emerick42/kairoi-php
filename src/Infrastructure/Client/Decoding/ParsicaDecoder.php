@@ -5,8 +5,8 @@ declare(strict_types = 1);
 namespace Kairoi\Infrastructure\Client\Decoding;
 
 use Kairoi\Domain\Client\Decoding\DecoderInterface;
+use Kairoi\Domain\Client\Decoding\Response;
 use Kairoi\Domain\Client\Decoding\Result;
-use Kairoi\Domain\Protocol\Response;
 use Verraes\Parsica;
 
 /**
@@ -55,8 +55,9 @@ class ParsicaDecoder implements DecoderInterface
             $string,
         );
         $arguments = Parsica\some($argument);
+        $content = Parsica\collect($argument, $arguments);
         $parser = Parsica\keepFirst(
-            $arguments,
+            $content,
             $endline
         );
 
@@ -65,7 +66,8 @@ class ParsicaDecoder implements DecoderInterface
 
         if ($result->isSuccess()) {
             if ($result->remainder()->isEOF()) {
-                return new Result(Result::SUCCESS, new Response($result->output()));
+                [$resultIdentifier, $resultArguments] = $result->output();
+                return new Result(Result::SUCCESS, new Response($resultIdentifier, $resultArguments));
             }
 
             return new Result(Result::FAILURE);

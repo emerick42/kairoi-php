@@ -7,6 +7,7 @@ namespace Kairoi\Infrastructure\Client;
 use Kairoi\Domain\Client\ClientInterface;
 use Kairoi\Domain\Client\Decoding\DecoderInterface;
 use Kairoi\Domain\Client\Encoding\EncoderInterface;
+use Kairoi\Domain\Client\Encoding\Request as EncodingRequest;
 use Kairoi\Domain\Client\Result;
 use Kairoi\Domain\Protocol\Request;
 use Kairoi\Domain\Protocol\Response;
@@ -98,7 +99,10 @@ class Client implements ClientInterface
             $this->socket = $socket;
         }
 
-        $message = $this->encoder->encode($request);
+        // @TODO: Generate an identifier unique accross all active requests.
+        $identifier = '0';
+        $encodingRequest = new EncodingRequest($identifier, $request->getArguments());
+        $message = $this->encoder->encode($encodingRequest);
         // Make sure to completely send the message.
         $left = $message;
         while (true) {

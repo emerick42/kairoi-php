@@ -4,8 +4,6 @@ declare(strict_types = 1);
 
 namespace Kairoi\Domain\Client\Encoding;
 
-use Kairoi\Domain\Protocol\Request;
-
 /**
  * Encode protocol requests into raw string.
  */
@@ -16,14 +14,10 @@ class Encoder implements EncoderInterface
      */
     public function encode(Request $request): string
     {
-        $message = '';
+        $message = $this->encodeArgument($request->getIdentifier());
         foreach ($request->getArguments() as $argument) {
             $encoded = $this->encodeArgument($argument);
-            if ($message === '') {
-                $message = $encoded;
-            } else {
-                $message .= ' ' . $encoded;
-            }
+            $message .= ' ' . $encoded;
         }
         $message .= "\n";
 
