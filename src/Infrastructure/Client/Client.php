@@ -104,6 +104,7 @@ class Client implements ClientInterface
 
                 return $results;
             }
+            stream_set_blocking($socket, false);
 
             $this->socket = $socket;
         }
@@ -158,10 +159,9 @@ class Client implements ClientInterface
 
             $data = fread($this->socket, 1024);
             if ($data === false) {
-                $this->shutdown();
+                usleep(100);
 
-                // @TODO: Construct a more descriptive error.
-                break;
+                continue;
             }
 
             $buffer .= $data;
