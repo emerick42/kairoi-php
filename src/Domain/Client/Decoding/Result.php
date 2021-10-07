@@ -4,11 +4,9 @@ declare(strict_types = 1);
 
 namespace Kairoi\Domain\Client\Decoding;
 
-use Kairoi\Domain\Protocol\Response;
-
 /**
- * A result of a decoding operation, containing a protocol response on success,
- * or the error description on failure.
+ * A result of a decoding operation, containing the input left to parse, some
+ * protocol responses on success, or the error description on failure.
  */
 class Result
 {
@@ -24,34 +22,53 @@ class Result
     private $status;
 
     /**
-     * The protocol response, if this result is a success.
+     * The input left after parsing, or null if there is none.
      *
-     * @var Response|null
+     * @var string|null
      */
-    private $response;
+    private $inputLeft;
+
+    /**
+     * The protocol responses that got parsed, if this result is a success.
+     *
+     * @var Response[]|null
+     */
+    private $responses;
 
     /**
      * Create a new decoding result. If the status is SUCCESS, there must be
      * a non-null response provided. In other cases, the response must be null.
      *
      * @param int $status
-     * @param Response|null $response
+     * @param string|null $inputLeft
+     * @param Response[]|null $responses
      */
-    public function __construct(int $status, ?Response $response = null)
+    public function __construct(int $status, ?string $inputLeft = null, ?array $responses = null)
     {
         $this->status = $status;
-        $this->response = $response;
+        $this->inputLeft = $inputLeft;
+        $this->responses = $responses;
     }
 
     /**
-     * Get the protocol response. Always return a protocol response if this
-     * result is a success, and always return null if it is a failure.
+     * Get the protocol responses. Always return an array if this result is a
+     * success, and always return null if it is a failure.
      *
-     * @return Response|null
+     * @return Response[]|null
      */
-    public function getResponse(): ?Response
+    public function getResponses(): ?array
     {
-        return $this->response;
+        return $this->responses;
+    }
+
+    /**
+     * Get the input left to parse. Return null if there is none.
+     *
+     * @return string|null
+     */
+    public function getInputLeft(): ?string
+    {
+        return $this->inputLeft;
     }
 
     /**

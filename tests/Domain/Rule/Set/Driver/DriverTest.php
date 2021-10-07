@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace Kairoi\Test\Domain\Rule\Set\Driver;
 
+use Kairoi\Domain\Client\Decoding\Response;
 use Kairoi\Domain\Client\Result as ClientResult;
 use Kairoi\Domain\Protocol\Request;
-use Kairoi\Domain\Protocol\Response;
 use Kairoi\Domain\Rule\Set\Driver\Driver;
 use Kairoi\Domain\Rule\Set\Driver\Runner\DriverInterface;
 use Kairoi\Domain\Rule\Set\Result;
@@ -62,9 +62,9 @@ final class DriverTest extends TestCase
 
     public function provideTestGetResult()
     {
-        $clientResult1 = new ClientResult(new Response(['OK']));
+        $clientResult1 = new ClientResult(new Response('0', ['OK']));
         $result1 = new Result(Result::SUCCESS, $clientResult1);
-        $clientResult2 = new ClientResult(new Response(['NOK', '0']));
+        $clientResult2 = new ClientResult(new Response('1', ['NOK', '0']));
         $result2 = new Result(Result::FAILURE, $clientResult2);
         $clientResult3 = new ClientResult(null);
         $result3 = new Result(Result::FAILURE, $clientResult3);

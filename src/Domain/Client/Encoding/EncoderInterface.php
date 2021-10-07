@@ -4,8 +4,6 @@ declare(strict_types = 1);
 
 namespace Kairoi\Domain\Client\Encoding;
 
-use Kairoi\Domain\Protocol\Request;
-
 /**
  * Encode protocol requests into raw strings.
  */

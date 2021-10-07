@@ -42,8 +42,7 @@ class Writer
     }
 
     /**
-     * Write a JOB SET query with the given rule configuration using the
-     * configured client.
+     * Write a JOB SET query with the given job using the configured client.
      *
      * @param Job $job
      *
@@ -54,9 +53,35 @@ class Writer
         // Construct the request and use the client to send it, then retrieve
         // the response.
         $request = $this->driver->getRequest($job);
-        $clientResult = $this->client->send($request);
+        [$clientResult] = $this->client->send([$request]);
         $result = $this->driver->getResult($clientResult);
 
         return $result;
+    }
+
+    /**
+     * Write multiple JOB SET query with the given jobs using the configured
+     * client. Each query can fail independently. Return an array of results
+     * indexed like the given jobs array.
+     *
+     * @param Job[] $jobs
+     *
+     * @return Result[]
+     */
+    public function writeMany(array $jobs): array
+    {
+        $requests = [];
+        foreach ($jobs as $index => $job) {
+            $requests[$index] = $this->driver->getRequest($job);
+        }
+
+        $clientResults = $this->client->send($requests);
+
+        $results = [];
+        foreach ($clientResults as $index => $clientResult) {
+            $results[$index] = $this->driver->getResult($clientResult);
+        }
+
+        return $results;
     }
 }

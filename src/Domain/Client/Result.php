@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Kairoi\Domain\Client;
 
-use Kairoi\Domain\Protocol\Response;
+use Kairoi\Domain\Client\Decoding\Response;
 
 /**
  * A result from a request sending to a Kairoi server.

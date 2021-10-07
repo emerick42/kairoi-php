@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace Kairoi\Test\Domain\Client\Encoding;
 
 use Kairoi\Domain\Client\Encoding\Encoder;
-use Kairoi\Domain\Protocol\Request;
+use Kairoi\Domain\Client\Encoding\Request;
 use PHPUnit\Framework\TestCase;
 
 class EncoderTest extends TestCase
@@ -24,12 +24,12 @@ class EncoderTest extends TestCase
     public function provideTestEncode()
     {
         return [
-            [new Request([]), "\n"],
-            [new Request(['solo']), "solo\n"],
-            [new Request(['multiple', 'very.simple', 'arguments']), "multiple very.simple arguments\n"],
-            [new Request(['$im%ple_-but', '/les\\s#simp!1e']), "\$im%ple_-but /les\\s#simp!1e\n"],
-            [new Request(['spaced argument']), "\"spaced argument\"\n"],
-            [new Request(["universal\" a\\rgume\nt"]), "\"universal\\\" a\\\\rgume\nt\"\n"],
+            [new Request('0', []), "0\n"],
+            [new Request('test', ['solo']), "test solo\n"],
+            [new Request('AB-C', ['multiple', 'very.simple', 'arguments']), "AB-C multiple very.simple arguments\n"],
+            [new Request('$*()A', ['$im%ple_-but', '/les\\s#simp!1e']), "\$*()A \$im%ple_-but /les\\s#simp!1e\n"],
+            [new Request('spaced identifier', ['spaced argument']), "\"spaced identifier\" \"spaced argument\"\n"],
+            [new Request("universal\" ide\ntifie\\r", ["universal\" a\\rgume\nt"]), "\"universal\\\" ide\ntifie\\\\r\" \"universal\\\" a\\\\rgume\nt\"\n"],
         ];
     }
 }

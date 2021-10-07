@@ -5,8 +5,8 @@ declare(strict_types = 1);
 namespace Kairoi\Infrastructure\Client\Decoding;
 
 use Kairoi\Domain\Client\Decoding\DecoderInterface;
+use Kairoi\Domain\Client\Decoding\Response;
 use Kairoi\Domain\Client\Decoding\Result;
-use Kairoi\Domain\Protocol\Response;
 use Verraes\Parsica;
 
 /**
@@ -55,20 +55,28 @@ class ParsicaDecoder implements DecoderInterface
             $string,
         );
         $arguments = Parsica\some($argument);
-        $parser = Parsica\keepFirst(
-            $arguments,
+        $content = Parsica\collect($argument, $arguments);
+        $response = Parsica\keepFirst(
+            $content,
             $endline
         );
+        $parser = Parsica\some($response);
 
         $stream = new Parsica\StringStream($input);
         $result = $parser->run($stream);
 
         if ($result->isSuccess()) {
-            if ($result->remainder()->isEOF()) {
-                return new Result(Result::SUCCESS, new Response($result->output()));
+            $inputLeft = null;
+            if (!$result->remainder()->isEOF()) {
+                $inputLeft = (string)$result->remainder();
             }
 
-            return new Result(Result::FAILURE);
+            $responses = [];
+            foreach ($result->output() as [$identifier, $arguments]) {
+                $responses[] = new Response($identifier, $arguments);
+            }
+
+            return new Result(Result::SUCCESS, $inputLeft, $responses);
         }
 
         if ($result->got()->isEOF()) {

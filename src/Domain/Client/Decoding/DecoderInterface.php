@@ -10,9 +10,10 @@ namespace Kairoi\Domain\Client\Decoding;
 interface DecoderInterface
 {
     /**
-     * Decode the given input into a structured result, containing the protocol
-     * response or the error description. In case of a INCOMPLETE result, the
-     * decoding operation should be retried with more input.
+     * Decode the given input into a structured result, containing the input
+     * left to parse, all parsed protocol responses, or the error description.
+     * In case of a INCOMPLETE result, the decoding operation should be retried
+     * with more input.
      *
      * @param string $data
      *
